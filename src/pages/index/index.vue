@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import card from "@/components/card";
-
+// import card from "@/components/card";
+import bannerSwiper from '@/components/swiper/swiper'
 export default {
   data() {
     return {
@@ -47,20 +47,74 @@ export default {
         "星期五",
         "星期六"
       ],
-      swiperOption: {
-        slidesPerView: 4
-      }
     };
   },
 
   components: {
-    card
+    bannerSwiper
   },
 
   methods: {
-    /* bindViewTap () {
-      
-    }, */
+    //天气状况图片
+    condImg(code) {
+      //return require(`@/assets/icons/${code}.png`);
+    },
+    //温度折线图
+    canvas(arr, color, c) {
+      let max = this.max;
+      console.log(max);
+      c.beginPath();
+      //画点
+      arr.forEach((item, index) => {
+        c.moveTo(
+          this.WIDTH * index + this.PADDING, //每天的起始点加上一半的宽度
+          (max - item + 2) * this.ONE_HEIGHT //高度取反,加上整个画布的高度,为了低温在下,高温在上
+        );
+        if (!this.flag) {
+          //第一次,文字在上
+          c.fillStyle = "#333";
+          c.fillText(
+            item + "℃",
+            this.WIDTH * index + this.PADDING - 6, //-6px是为了文字居中
+            //-item * this.ONE_HEIGHT + this.HEIGHT - this.PADDING / 3
+            (max - item + 2) * this.ONE_HEIGHT - this.PADDING / 6
+          );
+        } else {
+          //之后文字在下
+          c.fillStyle = "#333";
+          c.fillText(
+            item + "℃",
+            this.WIDTH * index + this.PADDING - 6,
+            //-item * this.ONE_HEIGHT + this.HEIGHT + this.PADDING / 2 //控制文字在上或者在下
+            (max - item + 2) * this.ONE_HEIGHT + this.PADDING / 3
+          );
+        }
+        c.arc(
+          this.WIDTH * index + this.PADDING,
+          (max - item + 2) * this.ONE_HEIGHT,
+          this.RADIUS,
+          0,
+          2 * Math.PI,
+          true
+        );
+      });
+      c.fillStyle = color;
+      this.flag = true;
+      c.fill();
+      //划线
+      arr.forEach((item, index) => {
+        c.moveTo(
+          this.WIDTH * index + this.PADDING,
+          (max - item + 2) * this.ONE_HEIGHT
+        );
+        c.lineTo(
+          this.WIDTH * (index + 1) + this.PADDING,
+          (max - arr[index + 1] + 2) * this.ONE_HEIGHT
+        );
+      });
+      c.strokeStyle = color;
+      c.stroke();
+    },
     //未来天气
     handleForecastWeather() {
       let length = this.forecastWeather.length;
@@ -88,7 +142,7 @@ export default {
     getForecastWeather(area, city) {
       let url = `forecast?location=${area},${city}`;
       this.$axios.get(url).then(res => {
-        this.forecastWeather = res.data.HeWeather6[0].daily_forecast;
+        this.forecastWeather = res.HeWeather6[0].daily_forecast;
         this.handleForecastWeather();
         console.log(this.forecastWeather);
       });
@@ -97,7 +151,8 @@ export default {
     getNowWeather(area, city) {
       let url = `now?location=${area},${city}`;
       this.$axios.get(url).then(res => {
-        this.nowweather = res.data.HeWeather6[0];
+        console.log(res)
+        this.nowweather = res.HeWeather6[0];
         console.log(this.nowweather)
         //this.handleNowWeather();
       });
@@ -126,6 +181,43 @@ export default {
         return "0" + num;
       }
     },
+    //计算宽度
+    calwidth() {
+      let clientWidth = document.body.offsetWidth;
+      let canvas = document.getElementById("canvas");
+      let prop = clientWidth / 750; //比例
+      let height = 300 * prop;
+      let width = clientWidth / 4; //,每天的宽度
+      this.WIDTH = width;
+      this.HEIGHT = height; // 2 + 16 / prop; //向下偏移的高度,因为坐标与数学坐标是反的
+      this.PADDING = width / 2;
+      canvas.setAttribute("width", width * 7);
+      canvas.setAttribute("height", height);
+      let max = this.bubble(this.highTemp).max;
+      let min = this.bubble(this.lowTemp).min;
+      this.max = max;
+      this.diff = max - min; //最高和最低温度差
+      this.ONE_HEIGHT = height / (this.diff + 4)
+      this.c = canvas.getContext("2d");
+    },
+    //冒泡排序
+    bubble(arr) {
+      let brr = arr.slice(); //数组拷贝.因为数组是引用类型,简单赋值只是一个指针
+      let instance;
+      for (let i = 0; i < brr.length; i++) {
+        for (let j = 0; j < brr.length - i; j++) {
+          if (parseInt(brr[j]) > parseInt(brr[j + 1])) {
+            instance = brr[j];
+            brr[j] = brr[j + 1];
+            brr[j + 1] = instance;
+          }
+        }
+      }
+      return {
+        max: brr[arr.length - 1],
+        min: brr[0]
+      };
+    },
     getUserInfo() {
       // 调用登录接口
       wx.login({
@@ -148,9 +240,9 @@ export default {
     this.getUserInfo();
   },
   mounted() {
-   /*  this.getToday(); */
-    //this.getNowWeather(this.area, this.city);
-    /* this.getForecastWeather(this.area, this.city); */
+    this.getToday();
+    this.getNowWeather(this.area, this.city);
+    this.getForecastWeather(this.area, this.city);
   }
 };
 </script>

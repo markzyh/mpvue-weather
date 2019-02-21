@@ -34,5 +34,30 @@ axios.interceptors.response.use(res => {
   return Promise.reject(error);
 });
 
+axios.defaults.adapter = function(config) {
+  let baseURL = ``
+  //发交易之前显示加载中
+  wx.showLoading({ title: '拼命加载中...' })
+  //发交易调用(开发放开注释)
+  return new Promise((resolve, reject) => {
+    console.log(config);
+    wx.request({
+      url: baseURL + config.url,
+      //data: config.params,
+      success: res => {
+        console.log(res)
+        if (res.statusCode < 200 || res.statusCode > 300) {
+          return reject(res.data || {});
+        }
+        return resolve(res.data || {});
+      },
+      complete: res => {
+        wx.hideLoading()
+        // TODO:
+      }
+    });
+  })
+}
+
 
 export default axios
