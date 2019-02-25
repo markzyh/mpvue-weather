@@ -15,7 +15,7 @@
 </template>
 <script>
 export default {
-  props: ["imgUrls"],
+  //props: ["imgUrls"],
   data() {
     return {
       indicatorDots: true,
