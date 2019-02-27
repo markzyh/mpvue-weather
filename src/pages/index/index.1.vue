@@ -124,12 +124,8 @@ export default {
     //温度折线图
     canvas(arr, color, c) {
       let max = this.max;
-      //console.log(max);
-      /* c.beginPath(); */
-/*       c.moveTo(10,10)
-      c.arc(100, 75, 50, 0, 2 * Math.PI)
-      c.fill()
-      c.draw() */
+      console.log(max);
+      c.beginPath();
       //画点
       arr.forEach((item, index) => {
         c.moveTo(
@@ -165,7 +161,7 @@ export default {
         );
       });
       c.fillStyle = color;
-      
+      this.flag = true;
       c.fill();
       //划线
       arr.forEach((item, index) => {
@@ -180,14 +176,6 @@ export default {
       });
       c.strokeStyle = color;
       c.stroke();
-      
-      /* if(!this.flag){
-        c.draw()
-      }
-      else{
-        c.draw(true)
-      } */
-      this.flag = true;
     },
     //未来天气
     handleForecastWeather() {
@@ -197,10 +185,9 @@ export default {
         this.lowTemp.push(this.forecastWeather[i].tmp_min);
       }
       this.calwidth(); //计算宽度,画布尺寸
-      this.canvas(this.highTemp, "#ff0000", this.c);
+      this.canvas(this.highTemp, "#fcc370", this.c);
       //this.canvas(this.highTemp, "#fcc370", this.c);
       this.canvas(this.lowTemp, "#137bcf", this.c);
-      this.c.draw(true)
     },
     //当前天气
     handleNowWeather() {
