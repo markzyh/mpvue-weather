@@ -14,7 +14,7 @@
       :autoplay="autoplay"
       :interval="interval"
       :duration="duration"
-      :display-multiple-items="5"
+      :display-multiple-items="4"
       class="banner-swiper"
     >
       <swiper-item
@@ -173,6 +173,9 @@ export default {
           this.WIDTH * index + this.PADDING,
           (max - item + 2) * this.ONE_HEIGHT
         );
+        if(index == arr.length-1){
+          return false
+        }
         c.lineTo(
           this.WIDTH * (index + 1) + this.PADDING,
           (max - arr[index + 1] + 2) * this.ONE_HEIGHT
@@ -187,6 +190,7 @@ export default {
       else{
         c.draw(true)
       } */
+      c.draw(true)
       this.flag = true;
     },
     //未来天气
@@ -200,7 +204,7 @@ export default {
       this.canvas(this.highTemp, "#ff0000", this.c);
       //this.canvas(this.highTemp, "#fcc370", this.c);
       this.canvas(this.lowTemp, "#137bcf", this.c);
-      this.c.draw(true)
+      //this.c.draw(true)
     },
     //当前天气
     handleNowWeather() {
