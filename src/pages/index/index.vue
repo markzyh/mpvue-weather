@@ -1,7 +1,9 @@
 <template>
   <div class="index">
+    <!-- <img src="/static/icons/100.png" alt=""> -->
     <h1 class="today">{{today}}</h1>
-    <router-link to="/region" tag="h2" class="local_title">{{city}}市-{{area}}区</router-link>
+    <router-link to="/region" tag="h2" class="local_title"></router-link>
+    <navigator url="/pages/region/main" hover-class="navigator-hover">{{city}}市-{{area}}区</navigator>
     <h3 class="weather_status">
       {{nowweatherStatus}}
       <span>{{nowWindDir}}</span>
@@ -29,9 +31,9 @@
         <!-- <h3 class="day" v-if="index !== 0">{{'index'+day}}</h3> -->
         <h4 class="date">{{item.date}}</h4>
         <p class="day_status">{{item.cond_txt_d}}</p>
-        <img :src="condImg(item.cond_code_d)" alt class="cond_img">
+        <img :src="'/static/icons/'+item.cond_code_d +'.png'" alt class="cond_img">
         <p class="empty"></p>
-        <img :src="condImg(item.cond_code_n)" alt class="cond_img">
+        <img :src="'/static/icons/'+ item.cond_code_d +'.png'" alt class="cond_img">
         <p class="night_status">{{item.cond_txt_n}}</p>
         <p class="wind_dir">{{item.wind_dir}}</p>
         <p class="wind_sc">{{item.wind_sc}}级</p>
@@ -126,7 +128,7 @@ export default {
       let max = this.max;
       //console.log(max);
       /* c.beginPath(); */
-/*       c.moveTo(10,10)
+      /*       c.moveTo(10,10)
       c.arc(100, 75, 50, 0, 2 * Math.PI)
       c.fill()
       c.draw() */
@@ -165,7 +167,7 @@ export default {
         );
       });
       c.fillStyle = color;
-      
+
       c.fill();
       //划线
       arr.forEach((item, index) => {
@@ -173,8 +175,8 @@ export default {
           this.WIDTH * index + this.PADDING,
           (max - item + 2) * this.ONE_HEIGHT
         );
-        if(index == arr.length-1){
-          return false
+        if (index == arr.length - 1) {
+          return false;
         }
         c.lineTo(
           this.WIDTH * (index + 1) + this.PADDING,
@@ -183,14 +185,14 @@ export default {
       });
       c.strokeStyle = color;
       c.stroke();
-      
+
       /* if(!this.flag){
         c.draw()
       }
       else{
         c.draw(true)
       } */
-      c.draw(true)
+
       this.flag = true;
     },
     //未来天气
@@ -204,7 +206,7 @@ export default {
       this.canvas(this.highTemp, "#ff0000", this.c);
       //this.canvas(this.highTemp, "#fcc370", this.c);
       this.canvas(this.lowTemp, "#137bcf", this.c);
-      //this.c.draw(true)
+      this.c.draw(true);
     },
     //当前天气
     handleNowWeather() {
@@ -340,9 +342,7 @@ export default {
 .banner-swiper {
   width: 750rpx;
   height: 800rpx;
-  img {
-    width: 100%;
-  }
+  background: rgba(255, 255, 255, 0.5);
 }
 .today {
   margin-top: 20rpx;

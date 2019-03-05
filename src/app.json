@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/region/main",
     "pages/index/main"
   ],
   "window": {
