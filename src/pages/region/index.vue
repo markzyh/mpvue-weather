@@ -1,8 +1,8 @@
 <template>
   <div class="region">
-    <div v-if="region.length" class="choose_region">
+    <div  class="choose_region">
       <h2 class="region_title">地区选择</h2>
-      <!-- <search/> -->
+      <search/>
     </div>
     <div class="region_content">
       <h3 class="fixed_region_tips" ref="fixedTips">{{fixedTips}}</h3>
@@ -31,10 +31,10 @@
   </div>
 </template>
 <script>
-/* import loading from "@/base/loading/loading";
-import Search from "@/components/pages/region/search"; */
+/* import loading from "@/base/loading/loading";*/
+import Search from "@/components/searchbar/search"; 
 export default {
-  // components: { loading, Search },
+  components: {  Search },
   data() {
     return {
       scrollY: -1,
@@ -185,6 +185,7 @@ export default {
       });
       Promise.all(arr).then(res => {
         this.region = res;
+        console.log(this.region)
         this.calHeight();
         console.log(this.region);
       });
