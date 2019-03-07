@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="page__bd">
-      <div class="weui-search-bar">
+      <div class="weui-search-bar weui-search-bar_focusing">
         <div class="weui-search-bar__form">
           <div class="weui-search-bar__box">
             <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
@@ -9,42 +9,29 @@
               type="text"
               class="weui-search-bar__input"
               placeholder="搜索"
-              :value="inputVal"
+              v-model="inputVal"
               :focus="inputShowed"
-              bindinput="inputTyping"
+              
             >
             <div class="weui-icon-clear" v-if="inputVal.length > 0" @click="clearInput">
               <icon type="clear" size="14"></icon>
             </div>
           </div>
-          <label class="weui-search-bar__label" v-show="inputShowed" @click="showInput">
+          <label class="weui-search-bar__label" v-if="!inputShowed" @click="showInput">
             <icon class="weui-icon-search" type="search" size="14"></icon>
             <div class="weui-search-bar__text">搜索</div>
           </label>
         </div>
-        <div class="weui-search-bar__cancel-btn" v-show="!inputShowed" @click="hideInput">取消</div>
+        <div class="weui-search-bar__cancel-btn" v-if="inputShowed" @click="hideInput">取消</div>
       </div>
-      <div class="weui-cells searchbar-result" v-if="inputVal.length > 0">
-        <navigator url class="weui-cell" hover-class="weui-cell_active">
+      <div class="weui-cells searchbar-result" v-if="suggestionList.length>0">
+
+        <navigator url class="weui-cell" hover-class="weui-cell_active" v-for="(item,index) in suggestionList" :key="index">
           <div class="weui-cell__bd">
-            <div>实时搜索文本</div>
+            <div>{{item.location}}</div>
           </div>
         </navigator>
-        <navigator url class="weui-cell" hover-class="weui-cell_active">
-          <div class="weui-cell__bd">
-            <div>实时搜索文本</div>
-          </div>
-        </navigator>
-        <navigator url class="weui-cell" hover-class="weui-cell_active">
-          <div class="weui-cell__bd">
-            <div>实时搜索文本</div>
-          </div>
-        </navigator>
-        <navigator url class="weui-cell" hover-class="weui-cell_active">
-          <div class="weui-cell__bd">
-            <div>实时搜索文本</div>
-          </div>
-        </navigator>
+
       </div>
     </div>
   </div>
@@ -59,11 +46,13 @@ export default {
   data() {
     return {
         inputShowed: false,
-        inputVal: ""
+        inputVal: "",
+        suggestionList:[]
     };
   },
   methods: {
     showInput: function() {
+      console.log(0)
       this.inputShowed = true
     },
     hideInput: function() {
@@ -73,12 +62,47 @@ export default {
     clearInput: function() {
       this.inputVal = ''
     },
+    inputChanged(){
+        console.log(this.inputVal)
+        this.querySearch(this.inputVal)
+    },
+    //focus
     inputTyping: function(e) {
       /* this.setData({
         inputVal: e.detail.value
       }); */
-      this.inputVal = ''
-    }
+      //this.inputVal = ''
+      console.log(0)
+      this.inputShowed = true
+    },
+    cancelSearch() {
+      this.searchRegionVal = "";
+    },
+    querySearch(queryString) {
+      this.getSuggestion(queryString).then(res => {
+        console.log(res);
+        this.suggestionList = res
+        //cb(res);
+      });
+    },
+    createFilter(queryString) {
+      return suggestion => {
+        return suggestion.name;
+      };
+    },
+    getSuggestion(queryString) {
+      let region = "全国";
+      let url = `https://search.heweather.net/find?`;
+      let key = "e82fb3f88fdf41898b945fda077cffbc";
+      let location = queryString;
+      let keywords = queryString;
+      url += `location=${queryString}`;
+      return new Promise((resolve, reject) => {
+        this.$axios.get(url).then(res => {
+          resolve(res.HeWeather6[0].basic);
+        });
+      });
+    },
   }
 };
 </script>
@@ -86,5 +110,10 @@ export default {
 <style>
 .search{
     color: #333;
+    font-size: 20rpx;
 }
+.weui-search-bar__input{
+  text-align: left;
+}
+
 </style>

@@ -174,7 +174,7 @@ export default {
         let promise = new Promise((resolve, reject) => {
           this.$axios.get(url).then(res => {
 
-            console.log(res)
+            //console.log(res)
             let obj = {};
             obj.name = item;
             obj.value = res.HeWeather6[0].basic;
@@ -185,9 +185,9 @@ export default {
       });
       Promise.all(arr).then(res => {
         this.region = res;
-        console.log(this.region)
+        //console.log(this.region)
         this.calHeight();
-        console.log(this.region);
+        //console.log(this.region);
       });
     }
   },
@@ -233,7 +233,7 @@ export default {
   text-align: left;
   background: #fff;
   color: #333;
-  margin-top: 180rpx;
+  margin-top: 189rpx;
   overflow: hidden;
 }
 .all_cities {
