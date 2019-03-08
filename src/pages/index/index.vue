@@ -3,7 +3,7 @@
     <!-- <img src="/static/icons/100.png" alt=""> -->
     <h1 class="today">{{today}}</h1>
     <router-link to="/region" tag="h2" class="local_title"></router-link>
-    <navigator url="/pages/region/main" hover-class="navigator-hover">{{city}}市-{{area}}区</navigator>
+    <navigator url="/pages/region/main" hover-class="navigator-hover">{{city}}-{{area}}</navigator>
     <h3 class="weather_status">
       {{nowweatherStatus}}
       <span>{{nowWindDir}}</span>
@@ -322,6 +322,25 @@ export default {
           this.clientWidth = res.windowWidth;
         }
       });
+    },
+    getRegionWeather(){
+      /* wx.getCurrentPages({
+        success: res =>{
+          console.log(res)
+        }
+      }) */
+      const pages = getCurrentPages()
+      const currentPage = pages[pages.length - 1]
+      let options = currentPage.options
+      if(options.areaName){
+        this.area = options.areaName
+        this.city = options.cityName
+      }else{
+        this.area = '宝山'
+        this.city = '上海'
+      }
+      console.log(pages)
+      console.log(options)
     }
   },
 
@@ -332,6 +351,7 @@ export default {
   mounted() {
     this.getSystemInfo();
     this.getToday();
+    this.getRegionWeather()
     this.getNowWeather(this.area, this.city);
     this.getForecastWeather(this.area, this.city);
   }

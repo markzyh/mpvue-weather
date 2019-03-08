@@ -15,7 +15,7 @@
         >{{item.name}}</li>
         <!--  <li v-for="(item,index) in region" :key="index" @click="chooseCitie(index)" :class="{active:shortcutIndex === index}"><a :href="'#cities'+index">{{item.name}}</a></li> -->
       </ul>
-      <div class="all_cities" ref="all_cities" @touchmove="ontouchmove" @touchend="ontouchend">
+      <div class="all_cities" ref="all_cities" id="all_cities" @touchmove="ontouchmove" @touchend="ontouchend">
         <div class="all_cities_scroll">
           <!-- <div class="region_panel" v-for="(item,index) in region" :key="index" :id="'cities'+index"> -->
           <div class="region_panel" v-for="(item,index) in region" :key="index" ref="region_panel">
@@ -135,6 +135,7 @@ export default {
     },
     chooseCitie(index) {
       this.shortcutIndex = index;
+      
       let allcities = this.$refs.all_cities;
       //console.log(allcities);
       allcities.scrollTop = this.heightArray[index - 1];
@@ -193,6 +194,21 @@ export default {
   },
   mounted() {
     this.getRegion();
+    const query = wx.createSelectorQuery()
+    query.select('#all_cities').boundingClientRect()
+    query.selectViewport().scrollOffset()
+    query.exec(function (res) {
+      console.log(res[0].top) // #the-id节点的上边界坐标
+      console.log(res[1].scrollTop) // 显示区域的竖直滚动位置
+    })
+    wx.pageScrollTo({
+      
+    scrollTop: 100,
+    duration: 300,
+    success: res =>{
+      console.log(res)
+    }
+  })
   }
 };
 </script>
