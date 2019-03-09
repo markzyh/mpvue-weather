@@ -1,6 +1,6 @@
 <template>
   <div class="region">
-    <div  class="choose_region">
+    <div class="choose_region">
       <h2 class="region_title">地区选择</h2>
       <search/>
     </div>
@@ -15,9 +15,15 @@
         >{{item.name}}</li>
         <!--  <li v-for="(item,index) in region" :key="index" @click="chooseCitie(index)" :class="{active:shortcutIndex === index}"><a :href="'#cities'+index">{{item.name}}</a></li> -->
       </ul>
-      <div class="all_cities" ref="all_cities" id="all_cities" @touchmove="ontouchmove" @touchend="ontouchend">
+      <!-- <div
+        class="all_cities"
+        ref="all_cities"
+        id="all_cities"
+        @touchmove="ontouchmove"
+        @touchend="ontouchend"
+      >
         <div class="all_cities_scroll">
-          <!-- <div class="region_panel" v-for="(item,index) in region" :key="index" :id="'cities'+index"> -->
+          
           <div class="region_panel" v-for="(item,index) in region" :key="index" ref="region_panel">
             <h3 class="region_tips">{{item.name}}</h3>
             <ul v-for="(items,indexs) in item.value" :key="indexs" class="region_cities">
@@ -25,20 +31,39 @@
             </ul>
           </div>
         </div>
-      </div>
+      </div> -->
+      <scroll-view class="all_cities"
+        scroll-y 
+        scroll-with-animation
+        id="all_cities"
+        :scroll-into-view="scrollIntoView"
+        @touchmove="ontouchmove"
+        @touchend="ontouchend"
+        v-if="region.length > 0"
+        >
+        <div class="region_panel" v-for="(item,index) in region" :key="index" :id="'cities'+index">
+        <!-- <div class="region_panel" v-for="(item,index) in region" :key="index" ref="region_panel"> -->
+          <h3 class="region_tips">{{item.name}}</h3>
+          <ul v-for="(items,indexs) in item.value" :key="indexs" class="region_cities">
+            <li>{{items.location}}</li>
+          </ul>
+        </div>
+      </scroll-view>
     </div>
     <!-- <loading v-if="!region.length"></loading> -->
   </div>
 </template>
 <script>
 /* import loading from "@/base/loading/loading";*/
-import Search from "@/components/searchbar/search"; 
+import Search from "@/components/searchbar/search";
 export default {
-  components: {  Search },
+  components: { Search },
   data() {
     return {
+      scrollTop:100,
+      scrollIntoView:'cities5',
       scrollY: -1,
-      diffheight:0,
+      diffheight: 0,
       heightArray: [],
       shortcutIndex: 0,
       WIDTH: 750, //设计稿宽度
@@ -135,11 +160,16 @@ export default {
     },
     chooseCitie(index) {
       this.shortcutIndex = index;
+      //debugger
+      let scrollView = 'cities'+index
+      this.scrollIntoView = scrollView
+      console.log(this.scrollIntoView)
       
-      let allcities = this.$refs.all_cities;
+      //this.scrollTop = 100*index
+      /* let allcities = this.$refs.all_cities;
       //console.log(allcities);
       allcities.scrollTop = this.heightArray[index - 1];
-      console.log(this.heightArray[index]);
+      console.log(this.heightArray[index]); */
     },
     //设置地区的高度
     calHeight() {
@@ -174,7 +204,6 @@ export default {
         }
         let promise = new Promise((resolve, reject) => {
           this.$axios.get(url).then(res => {
-
             //console.log(res)
             let obj = {};
             obj.name = item;
@@ -190,25 +219,10 @@ export default {
         this.calHeight();
         //console.log(this.region);
       });
-    }
+    },
   },
   mounted() {
     this.getRegion();
-    const query = wx.createSelectorQuery()
-    query.select('#all_cities').boundingClientRect()
-    query.selectViewport().scrollOffset()
-    query.exec(function (res) {
-      console.log(res[0].top) // #the-id节点的上边界坐标
-      console.log(res[1].scrollTop) // 显示区域的竖直滚动位置
-    })
-    wx.pageScrollTo({
-      
-    scrollTop: 100,
-    duration: 300,
-    success: res =>{
-      console.log(res)
-    }
-  })
   }
 };
 </script>
@@ -253,7 +267,7 @@ export default {
   overflow: hidden;
 }
 .all_cities {
-  overflow: scroll;
+  //overflow: scroll;
   height: 100%;
 }
 .all_cities_scroll {
