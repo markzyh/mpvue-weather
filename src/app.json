@@ -1,7 +1,8 @@
 {
   "pages": [
-    "pages/region/main",
-    "pages/index/main"
+    
+    "pages/index/main",
+    "pages/region/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

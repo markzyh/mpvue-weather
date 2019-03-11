@@ -3,7 +3,11 @@
     <!-- <img src="/static/icons/100.png" alt=""> -->
     <h1 class="today">{{today}}</h1>
     <router-link to="/region" tag="h2" class="local_title"></router-link>
-    <navigator url="/pages/region/main" hover-class="navigator-hover">{{city}}-{{area}}</navigator>
+    <navigator
+      url="/pages/region/main"
+      hover-class="navigator-hover"
+      class="local_title"
+    >{{city}}-{{area}}</navigator>
     <h3 class="weather_status">
       {{nowweatherStatus}}
       <span>{{nowWindDir}}</span>
@@ -11,7 +15,7 @@
     </h3>
     <h4 class="now_tmp">{{nowTmp}}℃</h4>
     <!-- <canvas-swiper/> -->
-    <swiper
+    <!-- <swiper
       :indicator-dots="indicatorDots"
       :autoplay="autoplay"
       :interval="interval"
@@ -25,10 +29,8 @@
         :key="index"
         ref="slider"
       >
-        <!-- <img :src="item" class="slide-image" width="355" height="150"> -->
         <h3 class="day" v-if="index === 0">今天</h3>
         <h3 class="day" v-if="index !== 0">{{week[index+day]}}</h3>
-        <!-- <h3 class="day" v-if="index !== 0">{{'index'+day}}</h3> -->
         <h4 class="date">{{item.date}}</h4>
         <p class="day_status">{{item.cond_txt_d}}</p>
         <img :src="'/static/icons/'+item.cond_code_d +'.png'" alt class="cond_img">
@@ -45,7 +47,28 @@
         class="tem_canvas"
         :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
       ></canvas>
-    </swiper>
+    </swiper>-->
+    <scroll-view scroll-x="true" class="scroll_weather">
+      <div class="weather_details" v-for="(item,index) in forecastWeather" :key="index">
+        <h3 class="day" v-if="index === 0">今天</h3>
+        <h3 class="day" v-if="index !== 0">{{week[index+day]}}</h3>
+        <h4 class="date">{{item.date}}</h4>
+        <p class="day_status">{{item.cond_txt_d}}</p>
+        <img :src="'/static/icons/'+item.cond_code_d +'.png'" alt class="cond_img">
+        <p class="empty"></p>
+        <img :src="'/static/icons/'+ item.cond_code_d +'.png'" alt class="cond_img">
+        <p class="night_status">{{item.cond_txt_n}}</p>
+        <p class="wind_dir">{{item.wind_dir}}</p>
+        <p class="wind_sc">{{item.wind_sc}}级</p>
+        <p class="air_qlty">良</p>
+      </div>
+      <canvas
+        canvas-id="canvas"
+        ref="canvas"
+        class="tem_canvas"
+        :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
+      ></canvas>
+    </scroll-view>
   </div>
 </template>
 
@@ -56,6 +79,8 @@ export default {
   data() {
     return {
       //indicatorDots: true,
+      latitude:'',//维度
+      longitude:'',//经度
       autoplay: false,
       interval: 5000,
       duration: 500,
@@ -323,24 +348,40 @@ export default {
         }
       });
     },
-    getRegionWeather(){
+    getLocation() {
+      wx.getLocation({
+        type: "wgs84",
+        success:res=> {
+           this.latitude = res.latitude;
+           this.longitude = res.longitude;
+           console.log(this.longitude)
+          /* const speed = res.speed;
+          const accuracy = res.accuracy; */
+          /* console.log(latitude)
+          console.log(longitude)
+          console.log(speed)
+          console.log(accuracy) */
+        }
+      });
+    },
+    getRegionWeather() {
       /* wx.getCurrentPages({
         success: res =>{
           console.log(res)
         }
       }) */
-      const pages = getCurrentPages()
-      const currentPage = pages[pages.length - 1]
-      let options = currentPage.options
-      if(options.areaName){
-        this.area = options.areaName
-        this.city = options.cityName
-      }else{
-        this.area = '宝山'
-        this.city = '上海'
+      const pages = getCurrentPages();
+      const currentPage = pages[pages.length - 1];
+      let options = currentPage.options;
+      if (options.areaName) {
+        this.area = options.areaName;
+        this.city = options.cityName;
+      } else {
+        this.area = "宝山";
+        this.city = "上海";
       }
-      console.log(pages)
-      console.log(options)
+      console.log(pages);
+      console.log(options);
     }
   },
 
@@ -349,9 +390,11 @@ export default {
     this.getUserInfo();
   },
   mounted() {
+    this.getLocation()//定位
+    console.log(this.longitude)
     this.getSystemInfo();
     this.getToday();
-    this.getRegionWeather()
+    this.getRegionWeather();
     this.getNowWeather(this.area, this.city);
     this.getForecastWeather(this.area, this.city);
   }
@@ -359,6 +402,14 @@ export default {
 </script>
 
 <style lang='scss'>
+.scroll_weather {
+  width: 100%;
+  white-space: nowrap;
+  .weather_details {
+    width: 25%;
+    display: inline-block;
+  }
+}
 .banner-swiper {
   width: 750rpx;
   height: 800rpx;
