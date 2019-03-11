@@ -5,15 +5,33 @@
       <search/>
     </div>
     <div class="region_content">
-      <h3 class="fixed_region_tips">{{fixedTips}}</h3>
+      <h3 class="fixed_region_tips" ref="fixedTips">{{fixedTips}}</h3>
       <ul class="region_shortcuts">
         <li
           v-for="(item,index) in region"
           :key="index"
           @click="chooseCitie(index)"
-          :class="{active:shortcutIndex == index}"
+          :class="{active:shortcutIndex === index}"
         >{{item.name}}</li>
+        <!--  <li v-for="(item,index) in region" :key="index" @click="chooseCitie(index)" :class="{active:shortcutIndex === index}"><a :href="'#cities'+index">{{item.name}}</a></li> -->
       </ul>
+      <!-- <div
+        class="all_cities"
+        ref="all_cities"
+        id="all_cities"
+        @touchmove="ontouchmove"
+        @touchend="ontouchend"
+      >
+        <div class="all_cities_scroll">
+          
+          <div class="region_panel" v-for="(item,index) in region" :key="index" ref="region_panel">
+            <h3 class="region_tips">{{item.name}}</h3>
+            <ul v-for="(items,indexs) in item.value" :key="indexs" class="region_cities">
+              <li>{{items.location}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>-->
       <scroll-view
         class="all_cities"
         scroll-y
@@ -24,6 +42,7 @@
         v-if="region.length > 0"
       >
         <div class="region_panel" v-for="(item,index) in region" :key="index" :id="'cities'+index">
+          <!-- <div class="region_panel" v-for="(item,index) in region" :key="index" ref="region_panel"> -->
           <h3 class="region_tips">{{item.name}}</h3>
           <ul v-for="(items,indexs) in item.value" :key="indexs" class="region_cities">
             <li>{{items.location}}</li>
@@ -31,9 +50,11 @@
         </div>
       </scroll-view>
     </div>
+    <!-- <loading v-if="!region.length"></loading> -->
   </div>
 </template>
 <script>
+/* import loading from "@/base/loading/loading";*/
 import Search from "@/components/searchbar/search";
 import { setTimeout } from 'timers';
 export default {
@@ -90,9 +111,6 @@ export default {
     },
     fixedTips() {
       if (this.region.length > 0) {
-        let date = new Date()
-        /* console.log(date)
-        console.log(this.region[this.shortcutIndex].name) */
         return this.region[this.shortcutIndex].name;
       }
     }
@@ -121,11 +139,9 @@ export default {
         .exec();
     },
     ontouchmove(e) {
-      //console.log(e.mp.detail.scrollTop)
+      console.log(e)
       this.scrollY = e.mp.detail.scrollTop
-
       //滚动距离在数组中的位置,左侧联动右侧
-      //测试发现
       for (let i = 0; i < this.heightArray.length; i++) {
         if (this.scrollY <= this.heightArray[0]) {
           this.shortcutIndex = 0;
@@ -135,9 +151,6 @@ export default {
           this.scrollY < this.heightArray[i + 1]
         ) {
           this.shortcutIndex = i + 1;
-          console.log(this.shortcutIndex)
-          let date = new Date()
-          console.log(date)
         }
 
       } 
@@ -150,9 +163,31 @@ export default {
       this.scrollIntoView = scrollView;
       console.log(this.scrollIntoView);
 
+      //this.scrollTop = 100*index
+      /* let allcities = this.$refs.all_cities;
+      //console.log(allcities);
+      allcities.scrollTop = this.heightArray[index - 1];
+      console.log(this.heightArray[index]); */
     },
     //设置地区的高度
-/*  */
+    calHeight() {
+      this.heightArray = [];
+      let clientWidth = document.documentElement.clientWidth;
+      let prop = this.WIDTH / clientWidth; //设计稿宽度除以实际宽度,比例
+      this.ONE_HEIGHT = this.ONE_HEIGHT / prop;
+      this.TIPS_HEIGHT = this.TIPS_HEIGHT / prop;
+      setTimeout(() => {
+        let regionPanel = this.$refs.region_panel;
+        let length = regionPanel.length;
+        let height = 0;
+        for (let i = 0; i < length; i++) {
+          let item = regionPanel[i];
+          height += item.clientHeight;
+          this.heightArray.push(height);
+        }
+        console.log(this.heightArray);
+      }, 20);
+    },
     //获取地区
     getRegion() {
       let url,
@@ -181,7 +216,6 @@ export default {
         //console.log(this.region)
         setTimeout(()=>{
           this.insertHeight();
-          console.log('done')
         },20)
         
         //console.log(this.region);
@@ -191,7 +225,7 @@ export default {
   mounted() {
     this.getRegion();
     setTimeout(()=>{
-      console.log(this.heightArray);
+      console.log(this.heightArray)
     },2000)
   }
 };
