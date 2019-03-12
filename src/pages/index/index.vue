@@ -14,6 +14,7 @@
       <span>{{nowWindSc}}级</span>
     </h3>
     <h4 class="now_tmp">{{nowTmp}}℃</h4>
+    
     <scroll-view scroll-x="true" class="scroll_weather">
       <div class="weather_details" v-for="(item,index) in forecastWeather" :key="index">
         <h3 class="day" v-if="index === 0">今天</h3>
@@ -35,6 +36,7 @@
         :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
       ></canvas>
     </scroll-view>
+    
   </div>
 </template>
 
@@ -109,7 +111,10 @@ export default {
   methods: {
     //天气状况图片
     //温度折线图
+
     canvas(arr, color, c) {
+      console.log('begin canvas')
+
       let max = this.max;
       //画点
       arr.forEach((item, index) => {
@@ -171,8 +176,9 @@ export default {
       else{
         c.draw(true)
       } */
-
+      c.draw(true)
       this.flag = true;
+      console.log('end canvas')
     },
     //未来天气
     handleForecastWeather() {
@@ -185,12 +191,16 @@ export default {
       this.canvas(this.highTemp, "#ff0000", this.c);
       //this.canvas(this.highTemp, "#fcc370", this.c);
       this.canvas(this.lowTemp, "#137bcf", this.c);
-      this.c.draw(true);
+      //this.c.draw(true);
     },
     //当前天气
     handleNowWeather() {
       if (this.nowweather.length != 0) {
         let nowweather = this.nowweather;
+        console.log("now")
+        console.log(nowweather)
+        this.area = nowweather.basic.location
+        this.city = nowweather.basic.parent_city
         this.nowweatherStatus = nowweather.now.cond_txt;
         this.nowWindDir = nowweather.now.wind_dir;
         this.nowWindSc = nowweather.now.wind_sc;
@@ -300,6 +310,8 @@ export default {
            this.latitude = res.latitude;
            this.longitude = res.longitude;
            console.log(this.longitude)
+
+           /* this.allWeatherMethods() */
         }
       });
     },
@@ -309,27 +321,31 @@ export default {
       let options = currentPage.options;
       if (options.areaName) {
         this.area = options.areaName;
+        this.longitude = options.areaName
         this.city = options.cityName;
+        this.latitude = options.cityName;
       } else {
-        this.area = "宝山";
-        this.city = "上海";
+        this.longitude = "宝山";
+        this.latitude = "上海";
+        this.getLocation();
       }
-      console.log(pages);
-      console.log(options);
+      this.allWeatherMethods()
+    },
+    allWeatherMethods(){
+      this.getNowWeather(this.longitude, this.latitude);
+      this.getForecastWeather(this.longitude, this.latitude);
     }
   },
-
   created() {
     // 调用应用实例的方法获取全局数据
     this.getSystemInfo();
     this.getUserInfo();
-    this.getLocation();
+    
   },
-  mounted() { 
+  mounted() {
     this.getToday();
     this.getRegionWeather();
-    this.getNowWeather(this.longitude, this.latitude);
-    this.getForecastWeather(this.longitude, this.latitude);
+    
   }
 };
 </script>
@@ -338,6 +354,8 @@ export default {
 .scroll_weather {
   width: 100%;
   white-space: nowrap;
+  background: rgba(255, 255, 255, 0.5);
+  padding:20rpx 0;
   .weather_details {
     width: 25%;
     display: inline-block;

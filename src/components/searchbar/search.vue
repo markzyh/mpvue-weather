@@ -28,7 +28,7 @@
         <block v-for="(item,index) in suggestionList" :key="index">
           <navigator url class="weui-cell" hover-class="weui-cell_active" >
             <div class="weui-cell__bd">
-              <div @click="choosedRegion(item.location,item.admin_area)">{{item.location}}</div>
+              <div @click="choosedRegion(item.location,item.parent_city,item.admin_area)">{{item.location}}</div>
             </div>
           </navigator>
         </block> 
@@ -76,11 +76,16 @@ export default {
       this.searchRegionVal = "";
     },
     //选定地区,跳转
-    choosedRegion(areaName,cityName){
-
-      wx.navigateTo({
-        url: `/pages/index/main?areaName=${areaName}&cityName=${cityName}`
-      })
+    choosedRegion(areaName,cityName,adminName){
+      if(areaName == cityName){
+        wx.navigateTo({
+          url: `/pages/index/main?areaName=${areaName}&cityName=${adminName}`
+        })
+      }else{
+        wx.navigateTo({
+          url: `/pages/index/main?areaName=${areaName}&cityName=${cityName}`
+        })
+      } 
     },
     querySearch(queryString) {
       this.getSuggestion(queryString).then(res => {

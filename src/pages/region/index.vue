@@ -26,7 +26,7 @@
         <div class="region_panel" v-for="(item,index) in region" :key="index" :id="'cities'+index">
           <h3 class="region_tips">{{item.name}}</h3>
           <ul v-for="(items,indexs) in item.value" :key="indexs" class="region_cities">
-            <li>{{items.location}}</li>
+            <li @click="choosedRegion(items.location,items.parent_city,items.admin_area)">{{items.location}}</li>
           </ul>
         </div>
       </scroll-view>
@@ -98,6 +98,17 @@ export default {
     }
   },
   methods: {
+    choosedRegion(areaName,cityName,adminName){
+      if(areaName == cityName){
+        wx.navigateTo({
+          url: `/pages/index/main?areaName=${areaName}&cityName=${adminName}`
+        })
+      }else{
+        wx.navigateTo({
+          url: `/pages/index/main?areaName=${areaName}&cityName=${cityName}`
+        })
+      } 
+    },
     insertHeight() {
       this.heightArray = [];
       wx.getSystemInfo({
@@ -178,7 +189,7 @@ export default {
       });
       Promise.all(arr).then(res => {
         this.region = res;
-        //console.log(this.region)
+        console.log(this.region)
         setTimeout(()=>{
           this.insertHeight();
           console.log('done')
@@ -189,6 +200,7 @@ export default {
     }
   },
   mounted() {
+    //console.log(region)
     this.getRegion();
     setTimeout(()=>{
       console.log(this.heightArray);

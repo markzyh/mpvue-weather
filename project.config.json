@@ -2,7 +2,7 @@
 	"description": "项目配置文件。",
 	"setting": {
 		"urlCheck": true,
-		"es6": false,
+		"es6": true,
 		"postcss": true,
 		"minified": true,
 		"newFeature": true
@@ -11,6 +11,7 @@
 	"compileType": "miniprogram",
 	"appid": "wxd4c41f641171d092",
 	"projectname": "mp-vue-weather",
+	"libVersion": "2.6.2",
 	"condition": {
 		"search": {
 			"current": -1,

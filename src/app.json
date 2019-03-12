@@ -8,6 +8,12 @@
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "weather",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh":true
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "请求获取位置信息"
+    }
   }
 }

@@ -1,59 +1,54 @@
 <template>
   <div class="index">
+    <!-- <img src="/static/icons/100.png" alt=""> -->
     <h1 class="today">{{today}}</h1>
-    <router-link to="/region" tag="h2" class="local_title">{{city}}市-{{area}}区</router-link>
+    <router-link to="/region" tag="h2" class="local_title"></router-link>
+    <navigator
+      url="/pages/region/main"
+      hover-class="navigator-hover"
+      class="local_title"
+    >{{city}}-{{area}}</navigator>
     <h3 class="weather_status">
       {{nowweatherStatus}}
       <span>{{nowWindDir}}</span>
       <span>{{nowWindSc}}级</span>
     </h3>
     <h4 class="now_tmp">{{nowTmp}}℃</h4>
-    <!-- <canvas-swiper/> -->
-    <swiper
-      :indicator-dots="indicatorDots"
-      :autoplay="autoplay"
-      :interval="interval"
-      :duration="duration"
-      :display-multiple-items="4"
-      class="banner-swiper"
-    >
-      <swiper-item
-        class="weather_details"
-        v-for="(item,index) in forecastWeather"
-        :key="index"
-        ref="slider"
-      >
-        <!-- <img :src="item" class="slide-image" width="355" height="150"> -->
+
+    <scroll-view scroll-x="true" class="scroll_weather">
+      <div class="weather_details" v-for="(item,index) in forecastWeather" :key="index">
         <h3 class="day" v-if="index === 0">今天</h3>
         <h3 class="day" v-if="index !== 0">{{week[index+day]}}</h3>
-        <!-- <h3 class="day" v-if="index !== 0">{{'index'+day}}</h3> -->
         <h4 class="date">{{item.date}}</h4>
         <p class="day_status">{{item.cond_txt_d}}</p>
-        <img :src="condImg(item.cond_code_d)" alt class="cond_img">
+        <img :src="'/static/icons/'+item.cond_code_d +'.png'" alt class="cond_img">
         <p class="empty"></p>
-        <img :src="condImg(item.cond_code_n)" alt class="cond_img">
+        <img :src="'/static/icons/'+ item.cond_code_d +'.png'" alt class="cond_img">
         <p class="night_status">{{item.cond_txt_n}}</p>
         <p class="wind_dir">{{item.wind_dir}}</p>
         <p class="wind_sc">{{item.wind_sc}}级</p>
         <p class="air_qlty">良</p>
-      </swiper-item>
+      </div>
       <canvas
-        canvas-id="canvas"
-        ref="canvas"
-        class="tem_canvas"
-        :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
-      ></canvas>
-    </swiper>
+      canvas-id="canvas"
+      ref="canvas"
+      class="tem_canvas"
+      :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
+    ></canvas>
+    </scroll-view>
+    
   </div>
 </template>
 
 <script>
-// import card from "@/components/card";
-/* import canvasSwiper from "@/components/swiper/swiper"; */
+let wxCharts = require("../../js/wxcharts/wxcharts.js");
+// var wxCharts = require('../../js/ajax/ajax.js');
+
 export default {
   data() {
     return {
-      //indicatorDots: true,
+      latitude: "", //维度
+      longitude: "", //经度
       autoplay: false,
       interval: 5000,
       duration: 500,
@@ -118,18 +113,12 @@ export default {
   },
   methods: {
     //天气状况图片
-    condImg(code) {
-      //return require(`@/assets/icons/${code}.png`);
-    },
     //温度折线图
+
     canvas(arr, color, c) {
+      console.log("begin canvas");
+
       let max = this.max;
-      //console.log(max);
-      /* c.beginPath(); */
-/*       c.moveTo(10,10)
-      c.arc(100, 75, 50, 0, 2 * Math.PI)
-      c.fill()
-      c.draw() */
       //画点
       arr.forEach((item, index) => {
         c.moveTo(
@@ -165,7 +154,7 @@ export default {
         );
       });
       c.fillStyle = color;
-      
+
       c.fill();
       //划线
       arr.forEach((item, index) => {
@@ -173,8 +162,8 @@ export default {
           this.WIDTH * index + this.PADDING,
           (max - item + 2) * this.ONE_HEIGHT
         );
-        if(index == arr.length-1){
-          return false
+        if (index == arr.length - 1) {
+          return false;
         }
         c.lineTo(
           this.WIDTH * (index + 1) + this.PADDING,
@@ -183,15 +172,16 @@ export default {
       });
       c.strokeStyle = color;
       c.stroke();
-      
+
       /* if(!this.flag){
         c.draw()
       }
       else{
         c.draw(true)
       } */
-      c.draw(true)
+      c.draw(true);
       this.flag = true;
+      console.log("end canvas");
     },
     //未来天气
     handleForecastWeather() {
@@ -200,11 +190,11 @@ export default {
         this.highTemp.push(this.forecastWeather[i].tmp_max);
         this.lowTemp.push(this.forecastWeather[i].tmp_min);
       }
-      this.calwidth(); //计算宽度,画布尺寸
+      this.drawCanvasWx();
+      /* this.calwidth(); //计算宽度,画布尺寸
       this.canvas(this.highTemp, "#ff0000", this.c);
-      //this.canvas(this.highTemp, "#fcc370", this.c);
-      this.canvas(this.lowTemp, "#137bcf", this.c);
-      //this.c.draw(true)
+      this.canvas(this.lowTemp, "#137bcf", this.c); */
+      //this.c.draw(true);
     },
     //当前天气
     handleNowWeather() {
@@ -233,14 +223,7 @@ export default {
         this.handleNowWeather();
       });
     },
-    //未来显示的星期
-    /* calWeek(index) {
-      let length = this.week.length; //7
-      if (index > length - 1) {
-        index = index - length;
-      }
-      return this.week[index];
-    }, */
+
     getToday() {
       let now = new Date();
       let year = now.getFullYear();
@@ -259,9 +242,7 @@ export default {
     },
     //计算宽度
     calwidth() {
-      // let clientWidth = document.body.offsetWidth;
       let clientWidth = this.clientWidth;
-      //let canvas = document.getElementById("canvas");
       const canvas = wx.createCanvasContext("canvas", this);
       let prop = clientWidth / 750; //比例
       let height = 300 * prop;
@@ -320,29 +301,162 @@ export default {
           this.clientWidth = res.windowWidth;
         }
       });
+    },
+    getLocation() {
+      /* wx.getLocation({
+        type: "wgs84",
+        success: res => {
+          this.latitude = res.latitude;
+          this.longitude = res.longitude;
+          console.log(this.longitude);
+          this.allWeatherMethods();
+        }
+      }); */
+      this.allWeatherMethods();
+    },
+    getRegionWeather() {
+      const pages = getCurrentPages();
+      const currentPage = pages[pages.length - 1];
+      let options = currentPage.options;
+      if (options.areaName) {
+        this.area = options.areaName;
+        this.longitude = options.areaName;
+        this.city = options.cityName;
+        this.latitude = options.cityName;
+      } else {
+        this.longitude = "宝山";
+        this.latitude = "上海";
+      }
+      this.allWeatherMethods();
+    },
+    allWeatherMethods() {
+      this.getNowWeather(this.longitude, this.latitude);
+      this.getForecastWeather(this.longitude, this.latitude);
+    },
+    createSimulationData: function() {
+      var categories = [];
+      var data = [];
+      for (var i = 0; i < 10; i++) {
+        categories.push("2016-" + (i + 1));
+        data.push(Math.random() * (20 - 10) + 10);
+      }
+      // data[4] = null;
+      return {
+        categories: categories,
+        data: data
+      };
+    },
+    drawCanvasWx() {
+      /* console.log(this.highTemp);
+      new wxCharts({
+        canvasId: "canvas",
+        type: "line",
+        categories: this.highTemp,
+        animation: true,
+        series: [
+          {
+            name: "最高气温",
+            data: this.highTemp,
+            fontOffset: -8 * rate,
+            format: function(val, name) {
+              return val + "℃";
+            }
+          },
+          {
+            name: "最低气温",
+            data: this.lowTemp,
+            fontOffset: -8 * rate,
+            format: function(val, name) {
+              return val + "℃";
+            }
+          }
+        ],
+        extra: {
+          lineStyle: "curve"
+        }
+      }); */
     }
   },
-
   created() {
     // 调用应用实例的方法获取全局数据
+    this.getSystemInfo();
     this.getUserInfo();
+    this.getLocation();
   },
   mounted() {
-    this.getSystemInfo();
     this.getToday();
-    this.getNowWeather(this.area, this.city);
-    this.getForecastWeather(this.area, this.city);
+    this.getRegionWeather();
+  },
+  onLoad() {
+    var windowWidth = 320;
+    console.log("---------------")
+    try {
+      var res = wx.getSystemInfoSync();
+      windowWidth = res.windowWidth;
+    } catch (e) {
+      console.error("getSystemInfoSync failed!");
+    }
+
+    var simulationData = this.createSimulationData();
+    new wxCharts({
+      canvasId: "canvas",
+      type: "line",
+      categories: simulationData.categories,
+      animation: true,
+      // background: '#f5f5f5',
+      series: [
+        {
+          name: "成交量1",
+          data: simulationData.data,
+          format: function(val, name) {
+            return val.toFixed(2) + "万";
+          }
+        },
+        {
+          name: "成交量2",
+          data: [2, 0, 0, 3, null, 4, 0, 0, 2, 0],
+          format: function(val, name) {
+            return val.toFixed(2) + "万";
+          }
+        }
+      ],
+      xAxis: {
+        disableGrid: true
+      },
+      yAxis: {
+        title: "成交金额 (万元)",
+        format: function(val) {
+          return val.toFixed(2);
+        },
+        min: 0
+      },
+      width: windowWidth,
+      height: 200,
+      dataLabel: false,
+      dataPointShape: true,
+      extra: {
+        lineStyle: "curve"
+      }
+    });
   }
 };
 </script>
 
 <style lang='scss'>
+.scroll_weather {
+  width: 100%;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 20rpx 0;
+  .weather_details {
+    width: 25%;
+    display: inline-block;
+  }
+}
 .banner-swiper {
   width: 750rpx;
   height: 800rpx;
-  img {
-    width: 100%;
-  }
+  background: rgba(255, 255, 255, 0.5);
 }
 .today {
   margin-top: 20rpx;
