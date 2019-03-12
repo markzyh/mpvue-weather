@@ -43,7 +43,7 @@
 export default {
   data() {
     return {
-      canIUse: wx.canIUse('button.open-type.getUserInfo'),
+      // canIUse: wx.canIUse("button.open-type.getUserInfo"),
       latitude: "", //维度
       longitude: "", //经度
       autoplay: false,
@@ -284,18 +284,31 @@ export default {
       };
     },
     getUserInfo() {
+      wx.getSetting({
+        success(res) {
+          if (!res.authSetting["scope.userInfo"]) {
+            wx.authorize({
+              scope: "scope.userInfo",
+              success() {
+                // 用户已经同意小程序使用录音功能，后续调用 wx.startRecord 接口不会弹窗询问
+                wx.startRecord();
+              }
+            });
+          }
+        }
+      });
       // 调用登录接口
-      wx.login({
+      /* wx.login({
         success: () => {
           wx.getUserInfo({
             success: res => {
               this.userInfo = res.userInfo;
-              console.log(this.userInfo)
-              console.log('*************')
+              console.log(this.userInfo);
+              console.log("*************");
             }
           });
         }
-      });
+      }); */
     },
     /* clickHandle(msg, ev) {
       console.log("clickHandle:", msg, ev);
@@ -329,8 +342,8 @@ export default {
         this.longitude = options.areaName;
         this.city = options.cityName;
         this.latitude = options.cityName;
-        this.highTemp = []
-        this.lowTemp = []
+        this.highTemp = [];
+        this.lowTemp = [];
         this.allWeatherMethods();
       } else {
         //this.longitude = "宝山";
@@ -346,7 +359,6 @@ export default {
   created() {
     // 调用应用实例的方法获取全局数据
     this.getSystemInfo();
-    
   },
   mounted() {
     this.getToday();
