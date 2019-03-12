@@ -14,40 +14,6 @@
       <span>{{nowWindSc}}级</span>
     </h3>
     <h4 class="now_tmp">{{nowTmp}}℃</h4>
-    <!-- <canvas-swiper/> -->
-    <!-- <swiper
-      :indicator-dots="indicatorDots"
-      :autoplay="autoplay"
-      :interval="interval"
-      :duration="duration"
-      :display-multiple-items="4"
-      class="banner-swiper"
-    >
-      <swiper-item
-        class="weather_details"
-        v-for="(item,index) in forecastWeather"
-        :key="index"
-        ref="slider"
-      >
-        <h3 class="day" v-if="index === 0">今天</h3>
-        <h3 class="day" v-if="index !== 0">{{week[index+day]}}</h3>
-        <h4 class="date">{{item.date}}</h4>
-        <p class="day_status">{{item.cond_txt_d}}</p>
-        <img :src="'/static/icons/'+item.cond_code_d +'.png'" alt class="cond_img">
-        <p class="empty"></p>
-        <img :src="'/static/icons/'+ item.cond_code_d +'.png'" alt class="cond_img">
-        <p class="night_status">{{item.cond_txt_n}}</p>
-        <p class="wind_dir">{{item.wind_dir}}</p>
-        <p class="wind_sc">{{item.wind_sc}}级</p>
-        <p class="air_qlty">良</p>
-      </swiper-item>
-      <canvas
-        canvas-id="canvas"
-        ref="canvas"
-        class="tem_canvas"
-        :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
-      ></canvas>
-    </swiper>-->
     <scroll-view scroll-x="true" class="scroll_weather">
       <div class="weather_details" v-for="(item,index) in forecastWeather" :key="index">
         <h3 class="day" v-if="index === 0">今天</h3>
@@ -73,12 +39,9 @@
 </template>
 
 <script>
-// import card from "@/components/card";
-/* import canvasSwiper from "@/components/swiper/swiper"; */
 export default {
   data() {
     return {
-      //indicatorDots: true,
       latitude:'',//维度
       longitude:'',//经度
       autoplay: false,
@@ -145,18 +108,9 @@ export default {
   },
   methods: {
     //天气状况图片
-    condImg(code) {
-      //return require(`@/assets/icons/${code}.png`);
-    },
     //温度折线图
     canvas(arr, color, c) {
       let max = this.max;
-      //console.log(max);
-      /* c.beginPath(); */
-      /*       c.moveTo(10,10)
-      c.arc(100, 75, 50, 0, 2 * Math.PI)
-      c.fill()
-      c.draw() */
       //画点
       arr.forEach((item, index) => {
         c.moveTo(
@@ -260,14 +214,7 @@ export default {
         this.handleNowWeather();
       });
     },
-    //未来显示的星期
-    /* calWeek(index) {
-      let length = this.week.length; //7
-      if (index > length - 1) {
-        index = index - length;
-      }
-      return this.week[index];
-    }, */
+
     getToday() {
       let now = new Date();
       let year = now.getFullYear();
@@ -286,9 +233,7 @@ export default {
     },
     //计算宽度
     calwidth() {
-      // let clientWidth = document.body.offsetWidth;
       let clientWidth = this.clientWidth;
-      //let canvas = document.getElementById("canvas");
       const canvas = wx.createCanvasContext("canvas", this);
       let prop = clientWidth / 750; //比例
       let height = 300 * prop;
@@ -355,21 +300,10 @@ export default {
            this.latitude = res.latitude;
            this.longitude = res.longitude;
            console.log(this.longitude)
-          /* const speed = res.speed;
-          const accuracy = res.accuracy; */
-          /* console.log(latitude)
-          console.log(longitude)
-          console.log(speed)
-          console.log(accuracy) */
         }
       });
     },
     getRegionWeather() {
-      /* wx.getCurrentPages({
-        success: res =>{
-          console.log(res)
-        }
-      }) */
       const pages = getCurrentPages();
       const currentPage = pages[pages.length - 1];
       let options = currentPage.options;
@@ -387,16 +321,15 @@ export default {
 
   created() {
     // 调用应用实例的方法获取全局数据
-    this.getUserInfo();
-  },
-  mounted() {
-    this.getLocation()//定位
-    console.log(this.longitude)
     this.getSystemInfo();
+    this.getUserInfo();
+    this.getLocation();
+  },
+  mounted() { 
     this.getToday();
     this.getRegionWeather();
-    this.getNowWeather(this.area, this.city);
-    this.getForecastWeather(this.area, this.city);
+    this.getNowWeather(this.longitude, this.latitude);
+    this.getForecastWeather(this.longitude, this.latitude);
   }
 };
 </script>
