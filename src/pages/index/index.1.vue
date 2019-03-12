@@ -29,14 +29,14 @@
         <p class="wind_sc">{{item.wind_sc}}级</p>
         <p class="air_qlty">良</p>
       </div>
-      
-    </scroll-view>
-    <canvas
+      <canvas
         canvas-id="canvas"
-        ref="canvas"
+        disable-scroll="true"
         class="tem_canvas"
         :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
       ></canvas>
+    </scroll-view>
+    
   </div>
 </template>
 
@@ -114,7 +114,7 @@ export default {
 
     canvas(arr, color, c) {
       console.log('begin canvas')
-
+  
       let max = this.max;
       //画点
       arr.forEach((item, index) => {
@@ -176,7 +176,7 @@ export default {
       else{
         c.draw(true)
       } */
-      c.draw(true)
+      //c.draw(true)
       this.flag = true;
       console.log('end canvas')
     },
@@ -189,14 +189,19 @@ export default {
       }
       this.calwidth(); //计算宽度,画布尺寸
       this.canvas(this.highTemp, "#ff0000", this.c);
+      //this.c.draw();
       //this.canvas(this.highTemp, "#fcc370", this.c);
       this.canvas(this.lowTemp, "#137bcf", this.c);
-      //this.c.draw(true);
+      this.c.draw(true);
     },
     //当前天气
     handleNowWeather() {
       if (this.nowweather.length != 0) {
         let nowweather = this.nowweather;
+        console.log("now")
+        console.log(nowweather)
+        this.area = nowweather.basic.location
+        this.city = nowweather.basic.parent_city
         this.nowweatherStatus = nowweather.now.cond_txt;
         this.nowWindDir = nowweather.now.wind_dir;
         this.nowWindSc = nowweather.now.wind_sc;
@@ -240,7 +245,7 @@ export default {
     //计算宽度
     calwidth() {
       let clientWidth = this.clientWidth;
-      const canvas = wx.createCanvasContext("canvas", this);
+      const canvas = wx.createCanvasContext("canvas");
       let prop = clientWidth / 750; //比例
       let height = 300 * prop;
       let width = clientWidth / 4; //,每天的宽度
@@ -306,6 +311,7 @@ export default {
            this.latitude = res.latitude;
            this.longitude = res.longitude;
            console.log(this.longitude)
+
            this.allWeatherMethods()
         }
       });
@@ -319,12 +325,13 @@ export default {
         this.longitude = options.areaName
         this.city = options.cityName;
         this.latitude = options.cityName;
-        
+        this.allWeatherMethods()
       } else {
-        this.longitude = "宝山";
-        this.latitude = "上海";
+        //this.longitude = "宝山";
+        //this.latitude = "上海";
+        this.getLocation();
       }
-      this.allWeatherMethods()
+      
     },
     allWeatherMethods(){
       this.getNowWeather(this.longitude, this.latitude);
@@ -335,28 +342,12 @@ export default {
     // 调用应用实例的方法获取全局数据
     this.getSystemInfo();
     this.getUserInfo();
-    this.getLocation();
+    
   },
   mounted() {
     this.getToday();
     this.getRegionWeather();
-    const context = wx.createCanvasContext('firstCanvas')
-    context.setStrokeStyle('#00ff00')
-    context.setLineWidth(5)
-    context.rect(0, 0, 200, 200)
-    context.stroke()
-    context.setStrokeStyle('#ff0000')
-    context.setLineWidth(2)
-    context.moveTo(160, 100)
-    context.arc(100, 100, 60, 0, 2 * Math.PI, true)
-    context.moveTo(140, 100)
-    context.arc(100, 100, 40, 0, Math.PI, false)
-    context.moveTo(85, 80)
-    context.arc(80, 80, 5, 0, 2 * Math.PI, true)
-    context.moveTo(125, 80)
-    context.arc(120, 80, 5, 0, 2 * Math.PI, true)
-    context.stroke()
-    context.draw()
+    
   }
 };
 </script>

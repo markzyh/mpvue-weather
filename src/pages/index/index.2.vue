@@ -31,7 +31,7 @@
       </div>
       <canvas
       canvas-id="canvas"
-      ref="canvas"
+      disable-scroll="true"
       class="tem_canvas"
       :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
     ></canvas>

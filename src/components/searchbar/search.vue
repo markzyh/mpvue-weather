@@ -57,6 +57,7 @@ export default {
     hideInput: function() {
       this.inputVal = ''
       this.inputShowed = false
+      this.suggestionList = false
     },
     clearInput() {
       this.inputVal = ''

@@ -14,7 +14,7 @@
       <span>{{nowWindSc}}级</span>
     </h3>
     <h4 class="now_tmp">{{nowTmp}}℃</h4>
-    
+    <!--     <button @click="testHand">999999999999</button> -->
     <scroll-view scroll-x="true" class="scroll_weather">
       <div class="weather_details" v-for="(item,index) in forecastWeather" :key="index">
         <h3 class="day" v-if="index === 0">今天</h3>
@@ -31,12 +31,11 @@
       </div>
       <canvas
         canvas-id="canvas"
-        ref="canvas"
+        disable-scroll="true"
         class="tem_canvas"
         :style="{width:canvasWidth+'px',height:canvasHeight+'px'}"
       ></canvas>
     </scroll-view>
-    
   </div>
 </template>
 
@@ -44,8 +43,9 @@
 export default {
   data() {
     return {
-      latitude:'',//维度
-      longitude:'',//经度
+      canIUse: wx.canIUse('button.open-type.getUserInfo'),
+      latitude: "", //维度
+      longitude: "", //经度
       autoplay: false,
       interval: 5000,
       duration: 500,
@@ -111,10 +111,9 @@ export default {
   methods: {
     //天气状况图片
     //温度折线图
-
     canvas(arr, color, c) {
-      console.log('begin canvas')
-
+      //console.log("begin canvas");
+      //console.log(arr)
       let max = this.max;
       //画点
       arr.forEach((item, index) => {
@@ -176,9 +175,9 @@ export default {
       else{
         c.draw(true)
       } */
-      c.draw(true)
+      c.draw(true);
       this.flag = true;
-      console.log('end canvas')
+      //console.log("end canvas");
     },
     //未来天气
     handleForecastWeather() {
@@ -189,6 +188,7 @@ export default {
       }
       this.calwidth(); //计算宽度,画布尺寸
       this.canvas(this.highTemp, "#ff0000", this.c);
+      //this.c.draw();
       //this.canvas(this.highTemp, "#fcc370", this.c);
       this.canvas(this.lowTemp, "#137bcf", this.c);
       //this.c.draw(true);
@@ -197,10 +197,10 @@ export default {
     handleNowWeather() {
       if (this.nowweather.length != 0) {
         let nowweather = this.nowweather;
-        console.log("now")
-        console.log(nowweather)
-        this.area = nowweather.basic.location
-        this.city = nowweather.basic.parent_city
+        //console.log("now");
+        //console.log(nowweather);
+        this.area = nowweather.basic.location;
+        this.city = nowweather.basic.parent_city;
         this.nowweatherStatus = nowweather.now.cond_txt;
         this.nowWindDir = nowweather.now.wind_dir;
         this.nowWindSc = nowweather.now.wind_sc;
@@ -213,7 +213,10 @@ export default {
       let url = `forecast?location=${area},${city}`;
       this.$axios.get(url).then(res => {
         this.forecastWeather = res.HeWeather6[0].daily_forecast;
-        this.handleForecastWeather();
+        //console.log(this.forecastWeather)
+        setTimeout(() => {
+          this.handleForecastWeather();
+        }, 1000);
       });
     },
     //当前天气
@@ -244,7 +247,7 @@ export default {
     //计算宽度
     calwidth() {
       let clientWidth = this.clientWidth;
-      const canvas = wx.createCanvasContext("canvas", this);
+      const canvas = wx.createCanvasContext("canvas");
       let prop = clientWidth / 750; //比例
       let height = 300 * prop;
       let width = clientWidth / 4; //,每天的宽度
@@ -287,14 +290,16 @@ export default {
           wx.getUserInfo({
             success: res => {
               this.userInfo = res.userInfo;
+              console.log(this.userInfo)
+              console.log('*************')
             }
           });
         }
       });
     },
-    clickHandle(msg, ev) {
+    /* clickHandle(msg, ev) {
       console.log("clickHandle:", msg, ev);
-    },
+    }, */
     //获取设备信息
     getSystemInfo() {
       wx.getSystemInfo({
@@ -306,12 +311,12 @@ export default {
     getLocation() {
       wx.getLocation({
         type: "wgs84",
-        success:res=> {
-           this.latitude = res.latitude;
-           this.longitude = res.longitude;
-           console.log(this.longitude)
+        success: res => {
+          this.latitude = res.latitude;
+          this.longitude = res.longitude;
+          //console.log(this.longitude);
 
-           /* this.allWeatherMethods() */
+          this.allWeatherMethods();
         }
       });
     },
@@ -321,17 +326,19 @@ export default {
       let options = currentPage.options;
       if (options.areaName) {
         this.area = options.areaName;
-        this.longitude = options.areaName
+        this.longitude = options.areaName;
         this.city = options.cityName;
         this.latitude = options.cityName;
+        this.highTemp = []
+        this.lowTemp = []
+        this.allWeatherMethods();
       } else {
-        this.longitude = "宝山";
-        this.latitude = "上海";
+        //this.longitude = "宝山";
+        //this.latitude = "上海";
         this.getLocation();
       }
-      this.allWeatherMethods()
     },
-    allWeatherMethods(){
+    allWeatherMethods() {
       this.getNowWeather(this.longitude, this.latitude);
       this.getForecastWeather(this.longitude, this.latitude);
     }
@@ -339,14 +346,16 @@ export default {
   created() {
     // 调用应用实例的方法获取全局数据
     this.getSystemInfo();
-    this.getUserInfo();
     
   },
   mounted() {
     this.getToday();
     this.getRegionWeather();
-    
+    this.getUserInfo();
   }
+  /*   onReady(){
+    console.log("ddddddeeseqwew")
+  } */
 };
 </script>
 
@@ -355,7 +364,7 @@ export default {
   width: 100%;
   white-space: nowrap;
   background: rgba(255, 255, 255, 0.5);
-  padding:20rpx 0;
+  padding: 20rpx 0;
   .weather_details {
     width: 25%;
     display: inline-block;
